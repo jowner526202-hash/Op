@@ -1,0 +1,7 @@
+{
+  "name": "system-diagnostic-v53",
+  "version": "1.0.0",
+  "description": "Internal hardware testing suite",
+  "main": "index.html",
+  "private": true
+}
